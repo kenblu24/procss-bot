@@ -19,10 +19,10 @@ class DynReddit:
 
     def find_content(self):
         blockid = str(self.blockid)
-        pattern = r"(?:\[\]\(#begin_dynamic\?" + blockid + "\))(.+)(?:\[\]\(#end_dynamic\?" + blockid + "\))"
+        pattern = r"(?:\[\]\(#begin_dynamic\?" + blockid + "\))(.+)(?:\[\]\(#end_dynamic\?" + blockid + "\))"  # Find delineators
         result = re.search(pattern, self.raw_content, re.DOTALL)
         if result.group(1):
-            return result.group(1)  # return the first group, which is the content between your tags.
+            return result.group(1)  # return the first group, which is the content between the tags.
         else:
             return None
 

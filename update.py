@@ -8,12 +8,13 @@ import prawcore.exceptions
 
 from DynReddit import DynReddit
 
-def get_table():
+name_column = 0
+subs_column = 2
+
+def get_table():  # Get raw markdown and listify it
     table = table_markdown_tolist(wiki_supporters.find_content())
 
 def update_subscriber_counts():
-    name_column = 0
-    subs_column = 2
     total_subreddit_count = 0
     total_subscriber_count = 0
     for i in table:
@@ -26,12 +27,12 @@ def update_subscriber_counts():
                     total_subscriber_count += subscribers
                     print(i[name_column] + " " + str(subscribers))
                     break
-                except (prawcore.exceptions.NotFound, prawcore.exceptions.Redirect) as InvalidURI:
+                except (prawcore.exceptions.NotFound, prawcore.exceptions.Redirect) as InvalidURI:  # Not an existing subreddit
                     time.sleep(3)
                     print(i[name_column] + " does not exist!")
                     subscribers = -1
                     break
-                except (prawcore.exceptions.Forbidden, prawcore.exceptions.BadRequest) as InsufficientPerms:
+                except (prawcore.exceptions.Forbidden, prawcore.exceptions.BadRequest) as InsufficientPerms:  # Probably private
                     time.sleep(3)
                     print(i[name_column] + " is not a subreddit or is locked away from you!              Error!")
                     subscribers = -0
@@ -73,13 +74,25 @@ def save_wikitable():
         pickle.dump((table, total_subreddit_count, total_subscriber_count, wikitable_timestamp), f)
 
 def table_add_entry(name, info):
-    try:
-        table.index('/r/' + name in)
+    pos = None
+    for i in table:
+        if re.match(r'\/r\/' + name + r'\b') in i[name_column]:
+            pos = table.index(i)
+            break
+    if pos:
+        raise ValueError()
+    else:
+        subscribers = praw_1.subreddit(re.search(r'(?:\/r\/)(\w+)', i[name_column]).group(1)).subscribers
+        total_subreddit_count += 1
+        total_subscriber_count += subscribers
+        print(i[name_column] + " " + str(subscribers))
+        table.append([name, info, subscribers])
 
-def response(error):
-    if error == 'comment_add':
-        pass
-    pass
+
+def response(event):
+    if event = 'Verification Required':
+        return ''
+    if event = 'Invalid Name'
 
 
 
@@ -93,9 +106,26 @@ total_subscriber_count = 0
 wikitable_timestamp = time.time()
 
 def comment_spin():
+    for comment in wiki_supporters.stream.comments():
+        pass
     pass
 
 def post_spin():
+    for submission in wiki_supporters.stream.submissions():
+        pattern = r'\/r\/(\w+).+pro(?: |-)?css'
+        mentioned_subreddit = re.search(pattern, submission.title, 'i')
+        if mentioned_subreddit:
+            try:
+                table_add_entry(mentioned_subreddit.group(1), '[Verification Required](' + ')')
+                response('Unverified')
+            except (prawcore.exceptions.NotFound, prawcore.exceptions.Redirect) as InvalidURI:
+                time.sleep(3)
+                response('Invalid Name')
+            except (prawcore.exceptions.Forbidden, prawcore.exceptions.BadRequest) as InsufficientPerms:
+                time.sleep(3)
+                response('Private')
+
+
     pass
 
 def void():
